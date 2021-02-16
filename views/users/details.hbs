@@ -13,14 +13,17 @@
                     <h3>Theater Description</h3>
                     <p>{{product.description}}</p>
                     <div class="buttons">
+                        {{#if product.isCreator}}
                         <a class="btn delete" href="/products/{{product._id}}/delete">Delete</a>
                         <a class="btn edit" href="/products/{{product._id}}/edit">Edit</a>
+                        {{/if}}
                         {{#if product.liked}}
                         <span class="liked">You have already liked this play!</span>
-                        {{/if}}
+                        {{else}}
                         {{#unless product.isCreator}}
                         <a class="btn like" href="/products/{{product._id}}/like">Like</a>
                         {{/unless}}
+                        {{/if}}
                     </div>
                 </section>
             </div>

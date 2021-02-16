@@ -16,14 +16,18 @@ router.get('/', (req, res) => {
     productService.getAll()
         .then(products => {
             if (res.locals.isAuthenticated) {
-                const arrangedProducts = products.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
-                arrangedProducts.map(x => x.likes = x.likedBy.length);
-                res.render('./users/home', { title: 'Browse', arrangedProducts })
+                const arrangedProducts = products.filter(x => x.isPublic == true)
+                    .sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn))
+                    .map(x =>  { 
+                        x.likes = x.likedBy.length;
+                        return x;
+                    });
+                res.render('./users/home', { title: 'Browse', arrangedProducts });
             } else {
-                const arrangedProducts = products.filter(x => x.isPublic != true)
-                .sort((a, b) => {
-                    return b.likedBy.length - a.likedBy.length
-                }).slice(0, 3)
+                const arrangedProducts = products.filter(x => x.isPublic == true)
+                    .sort((a, b) => {
+                        return b.likedBy.length - a.likedBy.length;
+                    }).slice(0, 3)
                 res.render('./guests/home', { title: 'Browse', arrangedProducts });
             }
         })
@@ -120,12 +124,12 @@ router.get('/users/:_id/profile', (req, res) => {
 
 })
 
-router.get('/products/:productId/buy', (req, res) => {
-    const id = req.params.productId;
-    const buyerId = req.user._id;
-    productService.updateDbArray(Product, id, 'buyers', buyerId)
+router.get('/products/:productId/like', (req, res) => {
+    const productId = req.params.productId;
+    const userId = req.user._id;
+    productService.updateDbArray(Product, productId, 'likedBy', userId)
         .then(result => {
-            res.redirect(`/products/${id}/details`);
+            res.redirect(`/products/${productId}/details`);
         })
 
 });

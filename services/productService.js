@@ -19,9 +19,8 @@ function updateOne(productId, productData) {
     return Product.updateOne({ _id: productId }, productData);
 }
 
-async function deleteOne(productId) {
-    const result = await Product.deleteOne({ _id: productId })
-    return result
+ function deleteOne(productId) {
+    return Product.deleteOne({ _id: productId });
 }
 
 async function updateDbArray(Document, id, arrayName, element) {
