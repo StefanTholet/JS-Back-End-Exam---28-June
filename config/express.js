@@ -12,7 +12,7 @@ function setupExpress(app) {
     app.set('view engine', 'hbs');
 
     app.use(express.static('static'))
-    app.use('/products', express.static('public'))
+    app.use('/products', express.static('static'))
     app.use(express.urlencoded({
         extended: true
     }));

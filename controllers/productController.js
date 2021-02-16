@@ -17,6 +17,7 @@ router.get('/', (req, res) => {
         .then(products => {
             if (res.locals.isAuthenticated) {
                 const arrangedProducts = products.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+                arrangedProducts.map(x => x.likes = x.likedBy.length);
                 res.render('./users/home', { title: 'Browse', arrangedProducts })
             } else {
                 const arrangedProducts = products.filter(x => x.isPublic == true)
@@ -56,8 +57,8 @@ router.get('/products/:productId/details', isAuthenticated, (req, res) => {
         .then(product => {
             if (req.user._id == String(product.creator._id)) {
                 product.isCreator = true;
-            } else if (product.buyers.includes(req.user._id)) {
-                product.bought = true;
+            } else if (product.likedBy.includes(req.user._id)) {
+                product.liked = true;
             }
             res.render('./users/details', { title: 'Product Details', product })
         })
