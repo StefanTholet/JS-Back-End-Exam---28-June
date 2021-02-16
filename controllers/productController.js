@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
                 arrangedProducts.map(x => x.likes = x.likedBy.length);
                 res.render('./users/home', { title: 'Browse', arrangedProducts })
             } else {
-                const arrangedProducts = products.filter(x => x.isPublic == true)
+                const arrangedProducts = products.filter(x => x.isPublic != true)
                 .sort((a, b) => {
                     return b.likedBy.length - a.likedBy.length
                 }).slice(0, 3)
@@ -75,7 +75,10 @@ router.get('/products/:productId/edit', isAuthenticated, (req, res) => {
 });
 
 router.post('/products/:productId/edit', isAuthenticated, (req, res) => {
-    productService.updateOne(req.params.productId, req.body)
+    const productData = req.body;
+    const productId = req.params.productId
+    productData.isPublic ? productData.isPublic = true : productData.isPublic = false;
+    productService.updateOne(productId, productData)
         .then(response => {
             res.redirect(`/products/${req.params.productId}/details`);
         })
