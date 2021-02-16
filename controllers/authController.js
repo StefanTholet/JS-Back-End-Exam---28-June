@@ -14,8 +14,9 @@ router.post('/login', async (req, res) => {
         let token = await authService.login({ username, password });
         res.cookie(COOKIE_NAME, token);
         res.redirect('/');
-    } catch (err) {
-        res.render('./guests/login', { error: 'Invalid username or password' })
+    } catch (error) {
+        const errors = errorCompiler(error);
+        res.render('./guests/login', { errors })
     }
 });
 
@@ -26,19 +27,17 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
     const { username, password, repeatPassword } = req.body;
     console.log(repeatPassword, password)
-    if (password !== repeatPassword) {
-        console.log('Passwords missmatch!');
-        return res.render('./guests/register', { error: 'Passwords missmatch!' });    
-    }
-
     try {
+        if (password !== repeatPassword) {
+            throw new Error('Passwords missmatch!');
+        }
         let user = await authService.register({ username, password });
         let token = await authService.login({ username, password });
         res.cookie(COOKIE_NAME, token);
         res.redirect('/');
     } catch (error) {
         const errors = errorCompiler(error);
-        res.render('./guests/register', errors)
+        res.render('./guests/register', { errors })
     }
 });
 

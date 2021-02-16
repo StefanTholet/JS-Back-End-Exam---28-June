@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
             if (res.locals.isAuthenticated) {
                 const arrangedProducts = products.filter(x => x.isPublic == true)
                     .sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn))
-                    .map(x =>  { 
+                    .map(x => {
                         x.likes = x.likedBy.length;
                         return x;
                     });
@@ -32,8 +32,13 @@ router.get('/', (req, res) => {
             }
         })
         .catch((error) => {
-            console.log(error);
-            res.end();
+            const errors = errorCompiler(error);
+            if (res.locals.isAuthenticated) {
+                res.render('./users/home', errors)
+            } else {
+                res.render('./guests/home', errors);
+            }
+
         })
 });
 
@@ -50,9 +55,9 @@ router.post('/products/create', isAuthenticated, (req, res) => {
         .then((createdProduct) => {
             res.redirect('/');
         })
-        .catch((err) => {
-            const errors = errorCompiler(err);
-            res.render('./users/create', errors)
+        .catch((error) => {
+            const errors = errorCompiler(error);
+            res.render('./users/create', { errors })
         })
 });
 
@@ -86,7 +91,10 @@ router.post('/products/:productId/edit', isAuthenticated, (req, res) => {
         .then(response => {
             res.redirect(`/products/${req.params.productId}/details`);
         })
-        .catch(err => { throw err });
+        .catch((error) => {
+            const errors = errorCompiler(error);
+            res.render('./users/create', { errors })
+        })
 });
 
 
@@ -99,30 +107,6 @@ router.get('/products/:productId/delete', isAuthenticated, (req, res) => {
         .catch(err => { throw err });
 });
 
-
-
-//bonuses
-
-router.get('/users/:_id/profile', (req, res) => {
-    productService.getAllSold(req.params._id)
-        .then(products => {
-            const user = req.user;
-            user.totalProfit = products.reduce((totalProfit, product) => {
-                totalProfit += product.price;
-                return totalProfit;
-            }, 0);
-            user.offers = products.reduce((offers, product) => {
-                offers += product.buyers.length;
-                return offers
-            }, 0);
-            res.render('./users/profile', { user, products });
-        })
-        .catch((error) => {
-            console.log(error);
-            res.status(404).send('Not Found')
-        })
-
-})
 
 router.get('/products/:productId/like', (req, res) => {
     const productId = req.params.productId;
