@@ -1,5 +1,4 @@
 const express = require('express');
-const traceErrors = require('trace-unhandled');
 const config = require('./config');
 const routes = require('./routes');
 const app = express();
